@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Link - TeleLinks{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-telegram text-white" style="background: linear-gradient(135deg, #0088cc, #64b5f6);">
+                <h4 class="mb-0"><i class="fas fa-edit"></i> Edit Telegram Link</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Title *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.url.id_for_label }}" class="form-label">Telegram URL *</label>
+                        {{ form.url }}
+                        <div class="form-text">{{ form.url.help_text }}</div>
+                        {% if form.url.errors %}
+                        <div class="text-danger">{{ form.url.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.link_type.id_for_label }}" class="form-label">Link Type *</label>
+                            {{ form.link_type }}
+                            {% if form.link_type.errors %}
+                            <div class="text-danger">{{ form.link_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="text-danger">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-telegram btn-lg">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a href="{% url 'link_detail' link.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

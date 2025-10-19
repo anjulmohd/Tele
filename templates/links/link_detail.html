@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ link.title }} - TeleLinks{% endblock %}
+
+{% block content %}
+<style>
+    /* Dark theme styling for link detail page */
+    .link-detail-container {
+        background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .link-card {
+        background: linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .link-card:hover {
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 12px 48px rgba(0, 212, 255, 0.15);
+    }
+
+    .link-title {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        font-size: 2rem;
+    }
+
+    .badge {
+        background: rgba(0, 212, 255, 0.15) !important;
+        color: #00d4ff !important;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+    }
+
+    .badge.bg-success {
+        background: rgba(16, 185, 129, 0.15) !important;
+        color: #10b981 !important;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-telegram {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        border: none;
+        color: #0f1419;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-telegram:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+        color: #0f1419;
+    }
+
+    .btn-outline-danger {
+        color: #ff6b6b;
+        border-color: rgba(255, 107, 107, 0.3);
+        background: rgba(255, 107, 107, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-danger:hover {
+        background: rgba(255, 107, 107, 0.15);
+        border-color: rgba(255, 107, 107, 0.6);
+        color: #ff8787;
+    }
+
+    .like-btn {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: #ff6b6b;
+        transition: all 0.3s ease;
+    }
+
+    .like-btn:hover {
+        background: rgba(255, 107, 107, 0.2);
+        border-color: rgba(255, 107, 107, 0.6);
+        transform: scale(1.05);
+    }
+
+    .like-btn.liked {
+        background: rgba(255, 107, 107, 0.2);
+        border-color: #ff6b6b;
+    }
+
+    .text-muted {
+        color: #a0aec0 !important;
+    }
+
+    .lead {
+        color: #cbd5e0;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .card-header {
+        background: rgba(0, 212, 255, 0.05);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        padding: 1.25rem;
+    }
+
+    .card-header h5 {
+        color: #00d4ff;
+        font-weight: 600;
+    }
+
+    .dropdown-menu {
+        background: #1a1f2e;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        z-index: 1050 !important;
+    }
+
+    .dropdown-item {
+        color: #cbd5e0;
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    .dropdown-item.text-danger {
+        color: #ff6b6b;
+    }
+
+    .dropdown-item.text-danger:hover {
+        background: rgba(255, 107, 107, 0.1);
+        color: #ff8787;
+    }
+
+    .list-group-item {
+        background: rgba(26, 31, 46, 0.5);
+        border-color: rgba(0, 212, 255, 0.1);
+        color: #cbd5e0;
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+    }
+
+    .list-group-item h6 {
+        color: #e2e8f0;
+    }
+
+    .comment-item {
+        background: rgba(26, 31, 46, 0.5);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 3px solid rgba(0, 212, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .comment-item:hover {
+        border-left-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .comment-item strong {
+        color: #00d4ff;
+    }
+
+    .comment-item p {
+        color: #cbd5e0;
+        margin-top: 0.5rem;
+    }
+
+    .alert-info {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        border-radius: 8px;
+    }
+
+    .alert-info a {
+        color: #00d4ff;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .alert-info a:hover {
+        color: #00e6ff;
+    }
+
+    .user-info {
+        background: rgba(0, 212, 255, 0.05);
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #00d4ff;
+    }
+
+    .user-info strong {
+        color: #00d4ff;
+    }
+
+    .user-info small {
+        color: #a0aec0;
+    }
+
+    hr {
+        border-color: rgba(0, 212, 255, 0.1);
+    }
+
+    textarea {
+        background: rgba(26, 31, 46, 0.8) !important;
+        border: 1px solid rgba(0, 212, 255, 0.2) !important;
+        color: #e2e8f0 !important;
+        border-radius: 8px !important;
+    }
+
+    textarea:focus {
+        background: rgba(26, 31, 46, 0.9) !important;
+        border-color: rgba(0, 212, 255, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1) !important;
+    }
+
+    textarea::placeholder {
+        color: #718096;
+    }
+</style>
+
+<div class="link-detail-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Link Detail Card -->
+                <div class="card link-card mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h2 class="link-title mb-3">{{ link.title }}</h2>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge">{{ link.get_link_type_display }}</span>
+                                    {% if link.category %}
+                                    <span class="badge">{{ link.category.name }}</span>
+                                    {% endif %}
+                                    {% if link.is_verified %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Verified</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if user == link.user %}
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'edit_link' link.pk %}"><i class="fas fa-edit"></i> Edit</a></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'delete_link' link.pk %}"><i class="fas fa-trash"></i> Delete</a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <p class="lead mb-4">{{ link.description }}</p>
+
+                        <div class="mb-4">
+                            <a href="{{ link.url }}" target="_blank" class="btn btn-telegram btn-lg">
+                                <i class="fab fa-telegram"></i> Open Telegram Link
+                            </a>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-3 flex-wrap gap-3">
+                            <button class="btn btn-outline-danger like-btn" data-link-id="{{ link.pk }}">
+                                <i class="{% if user_has_liked %}fas{% else %}far{% endif %} fa-heart"></i>
+                                <span class="likes-count">{{ link.likes_count }}</span> Likes
+                            </button>
+                            <span class="text-muted">
+                                <i class="fas fa-eye"></i> {{ link.views_count }} Views
+                            </span>
+                            <span class="text-muted">
+                                <i class="fas fa-comment"></i> {{ comments.count }} Comments
+                            </span>
+                        </div>
+
+                        <hr>
+
+                        <div class="user-info d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-2x" style="color: #00d4ff;"></i>
+                            </div>
+                            <div>
+                                <strong>{{ link.user.username }}</strong><br>
+                                <small>Posted {{ link.created_at|timesince }} ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="card link-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-comments"></i> Comments ({{ comments.count }})</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'add_comment' link.pk %}" class="mb-4">
+                            {% csrf_token %}
+                            {{ comment_form.text }}
+                            <button type="submit" class="btn btn-telegram mt-3">
+                                <i class="fas fa-paper-plane"></i> Post Comment
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-info mb-4">
+                            <a href="{% url 'login' %}">Login</a> to post a comment.
+                        </div>
+                        {% endif %}
+
+                        <hr>
+
+                        {% for comment in comments %}
+                            {% if comment.is_active %}
+                            <div class="comment-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-circle fa-lg me-2" style="color: #00d4ff;"></i>
+                                        <div>
+                                            <strong>{{ comment.user.username }}</strong>
+                                            <small class="ms-2">{{ comment.created_at|timesince }} ago</small>
+                                        </div>
+                                    </div>
+                                    {% if comment.user == request.user %}
+                                    <form method="post" action="{% url 'delete_comment' comment.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete comment">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0">{{ comment.text }}</p>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                            <p class="text-muted text-center py-4">No comments yet. Be the first to comment!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                {% if related_links %}
+                <div class="card link-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-link"></i> Related Links</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for related in related_links %}
+                        <a href="{% url 'link_detail' related.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ related.title|truncatewords:5 }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-eye"></i> {{ related.views_count }}
+                                </small>
+                            </div>
+                            <small class="text-muted">{{ related.get_link_type_display }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('.like-btn').click(function() {
+        const btn = $(this);
+        const linkId = btn.data('link-id');
+        
+        $.ajax({
+            url: '/link/' + linkId + '/like/',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    const icon = btn.find('i');
+                    if (response.liked) {
+                        icon.removeClass('far').addClass('fas');
+                        btn.addClass('liked');
+                    } else {
+                        icon.removeClass('fas').addClass('far');
+                        btn.removeClass('liked');
+                    }
+                    btn.find('.likes-count').text(response.likes_count);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

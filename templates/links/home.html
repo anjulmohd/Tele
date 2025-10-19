@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - TeleLinks{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0" style="background: linear-gradient(135deg, #1a1f2e 0%, #252d3d 50%, #1a1f2e 100%); overflow: hidden; position: relative;">
+            <div style="position: absolute; top: -50%; right: -10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+            <div class="card-body text-center py-5 position-relative" style="z-index: 1;">
+                <h1 class="display-4 mb-3" style="background: linear-gradient(135deg, #00a8ff, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    <i class="fab fa-telegram"></i> Welcome to TeleLinks
+                </h1>
+                <p class="lead" style="color: #9ca3af; font-size: 1.2rem;">Discover and share amazing Telegram channels, groups, and bots</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'upload_link' %}" class="btn btn-telegram btn-lg mt-4">
+                    <i class="fas fa-plus-circle"></i> Upload Your Link
+                </a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-telegram btn-lg mt-4">
+                    Get Started
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <form method="get" action="{% url 'home' %}" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search links..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for value, label in categories %}
+                    <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in link_types %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-select">
+                    <option value="recent" {% if sort_by == 'recent' %}selected{% endif %}>Recent</option>
+                    <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Popular</option>
+                    <option value="liked" {% if sort_by == 'liked' %}selected{% endif %}>Most Liked</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-telegram w-100">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Links Grid -->
+<div class="row">
+    {% for link in page_obj %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title" style="color: #e8eaed;">{{ link.title }}</h5>
+                    <span class="badge badge-type">{{ link.get_link_type_display }}</span>
+                </div>
+                
+                <span class="badge bg-secondary mb-3">{{ link.get_category_display }}</span>
+                
+                <p class="card-text">{{ link.description|truncatewords:20 }}</p>
+                
+                <div class="link-stats mb-4">
+                    <span>
+                        <i class="fas fa-eye"></i> {{ link.views_count }}
+                    </span>
+                    <span>
+                        <i class="fas fa-heart"></i> {{ link.likes_count }}
+                    </span>
+                    <span>
+                        <i class="fas fa-comment"></i> {{ link.comments.count }}
+                    </span>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <small style="color: #9ca3af;">
+                        <i class="fas fa-user"></i> {{ link.user.username }}
+                    </small>
+                    <a href="{% url 'link_detail' link.pk %}" class="btn btn-sm btn-telegram">
+                        View Details <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer" style="background-color: rgba(0, 212, 255, 0.05); border-top: 1px solid #2d3748;">
+                <small style="color: #9ca3af;"><i class="far fa-clock"></i> {{ link.created_at|timesince }} ago</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> No links found. Be the first to share!
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-5">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&category={{ selected_category }}&type={{ selected_type }}&sort={{ sort_by }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}&search={{ search_query }}&category={{ selected_category }}&type={{ selected_type }}&sort={{ sort_by }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&category={{ selected_category }}&type={{ selected_type }}&sort={{ sort_by }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Link - TeleLinks{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-telegram text-white" style="background: linear-gradient(135deg, #0088cc, #64b5f6);">
+                <h4 class="mb-0"><i class="fas fa-upload"></i> Upload Telegram Link</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="uploadForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Title *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.url.id_for_label }}" class="form-label">Telegram URL *</label>
+                        {{ form.url }}
+                        <div class="form-text">{{ form.url.help_text }}</div>
+                        {% if form.url.errors %}
+                        <div class="text-danger">{{ form.url.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.link_type.id_for_label }}" class="form-label">Link Type *</label>
+                            {{ form.link_type }}
+                            {% if form.link_type.errors %}
+                            <div class="text-danger">{{ form.link_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="text-danger">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-telegram btn-lg">
+                            <i class="fas fa-check-circle"></i> Submit Link
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Make sure the Telegram link is valid and starts with <code>https://t.me/</code></li>
+                    <li>Provide a clear and descriptive title</li>
+                    <li>Add a detailed description to help others understand what the link is about</li>
+                    <li>Choose the correct link type and category</li>
+                    <li>Do not share spam, adult content, or illegal material</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urlField = document.getElementById('{{ form.url.id_for_label }}');
+    
+    // Function to normalize Telegram URLs
+    function normalizeTelegramUrl(url) {
+        // Remove any whitespace
+        url = url.trim();
+        
+        // If it starts with t.me/, add https:// prefix
+        if (url.startsWith('t.me/')) {
+            return 'https://' + url;
+        }
+        
+        // If it starts with @, convert to https://t.me/
+        if (url.startsWith('@')) {
+            return 'https://t.me/' + url.substring(1);
+        }
+        
+        // If it's already a full URL, return as is
+        if (url.startsWith('https://t.me/') || url.startsWith('http://t.me/')) {
+            return url;
+        }
+        
+        // For any other format, assume it's a username and prepend https://t.me/
+        if (url.length > 0 && !url.includes('/') && !url.includes(':')) {
+            return 'https://t.me/' + url;
+        }
+        
+        // Return the original URL if none of the above conditions match
+        return url;
+    }
+    
+    // Process URL when the field loses focus
+    urlField.addEventListener('blur', function() {
+        this.value = normalizeTelegramUrl(this.value);
+    });
+    
+    // Also process URL when form is submitted
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        urlField.value = normalizeTelegramUrl(urlField.value);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - TeleLinks{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #0088cc, #64b5f6);">
+                <h3 class="mb-0"><i class="fas fa-user-plus"></i> Create Your Account</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> Please correct the errors below.
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Username *</label>
+                        <input type="text" name="username" class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}" 
+                               id="id_username" placeholder="Choose a username" required autofocus 
+                               value="{{ form.username.value|default:'' }}">
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.username.errors.0 }}
+                        </div>
+                        {% else %}
+                        <div class="form-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">Password *</label>
+                        <input type="password" name="password1" class="form-control form-control-lg {% if form.password1.errors %}is-invalid{% endif %}" 
+                               id="id_password1" placeholder="Create a strong password" required>
+                        {% if form.password1.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.password1.errors.0 }}
+                        </div>
+                        {% else %}
+                        <div class="form-text">
+                            <ul class="mb-0 ps-3">
+                                <li>Your password can't be too similar to your other personal information.</li>
+                                <li>Your password must contain at least 8 characters.</li>
+                                <li>Your password can't be a commonly used password.</li>
+                                <li>Your password can't be entirely numeric.</li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label">Confirm Password *</label>
+                        <input type="password" name="password2" class="form-control form-control-lg {% if form.password2.errors %}is-invalid{% endif %}" 
+                               id="id_password2" placeholder="Re-enter your password" required>
+                        {% if form.password2.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.password2.errors.0 }}
+                        </div>
+                        {% else %}
+                        <div class="form-text">Enter the same password as before, for verification.</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-telegram btn-lg w-100 mb-3">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+
+                <hr>
+
+                <p class="text-center mb-0">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" class="fw-bold">Login here</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="text-muted">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

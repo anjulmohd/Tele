@@ -45,3 +45,17 @@ class CommentForm(forms.ModelForm):
         labels = {
             'text': 'Your Comment'
         }
+
+
+from django.contrib.auth.forms import UserCreationForm
+from django import forms
+
+class CustomUserCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove password validations
+        self.fields['password1'].validators = []
+        self.fields['password2'].validators = []
+        
+    class Meta(UserCreationForm.Meta):
+        fields = ('username', 'password1', 'password2')

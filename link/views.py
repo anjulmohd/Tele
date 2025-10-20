@@ -17,6 +17,11 @@ def register(request):
     
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
+        
+        # Remove password validators
+        form.fields['password1'].validators = []
+        form.fields['password2'].validators = []
+        
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
@@ -225,9 +230,13 @@ def delete_comment(request, pk):  # Use pk for comments
     messages.success(request, 'Comment deleted successfully!')
     return redirect('link_detail', hash_id=comment.link.hash_id)  # Use hash_id for the link
 
-def category_links(request, category_id):
+def category_links(request, category):
     """View links by category"""
-    category = get_object_or_404(Category, pk=category_id)
+    # Validate that the category exists in choices
+    valid_categories = dict(TelegramLink.CATEGORY_CHOICES)
+    if category not in valid_categories:
+        return redirect('home')
+    
     links = TelegramLink.objects.filter(category=category, is_active=True).order_by('-created_at')
     
     paginator = Paginator(links, 12)
@@ -236,5 +245,6 @@ def category_links(request, category_id):
     
     return render(request, 'links/category_links.html', {
         'category': category,
+        'category_name': valid_categories[category],  # Human-readable name
         'page_obj': page_obj
     })

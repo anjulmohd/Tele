@@ -92,15 +92,15 @@ def upload_link(request):
             link.user = request.user
             link.save()
             messages.success(request, 'Your Telegram link has been uploaded successfully!')
-            return redirect('link_detail', pk=link.pk)
+            return redirect('link_detail', hash_id=link.hash_id)
     else:
         form = TelegramLinkForm()
     
     return render(request, 'links/upload_link.html', {'form': form})
 
-def link_detail(request, pk):
+def link_detail(request, hash_id):
     """View details of a specific link"""
-    link = get_object_or_404(TelegramLink, pk=pk, is_active=True)
+    link = get_object_or_404(TelegramLink, hash_id=hash_id, is_active=True)
     
     # Increment view count
     link.increment_views()
@@ -120,7 +120,7 @@ def link_detail(request, pk):
     related_links = TelegramLink.objects.filter(
         category=link.category,
         is_active=True
-    ).exclude(pk=link.pk)[:4]
+    ).exclude(hash_id=link.hash_id)[:4]  # Changed from pk to hash_id
     
     context = {
         'link': link,
@@ -133,25 +133,25 @@ def link_detail(request, pk):
     return render(request, 'links/link_detail.html', context)
 
 @login_required
-def edit_link(request, pk):
+def edit_link(request, hash_id):
     """Edit an existing link"""
-    link = get_object_or_404(TelegramLink, pk=pk, user=request.user)
+    link = get_object_or_404(TelegramLink, hash_id=hash_id, user=request.user)
     
     if request.method == 'POST':
         form = TelegramLinkForm(request.POST, instance=link)
         if form.is_valid():
             form.save()
             messages.success(request, 'Link updated successfully!')
-            return redirect('link_detail', pk=link.pk)
+            return redirect('link_detail', hash_id=link.hash_id)
     else:
         form = TelegramLinkForm(instance=link)
     
     return render(request, 'links/edit_link.html', {'form': form, 'link': link})
 
 @login_required
-def delete_link(request, pk):
+def delete_link(request, hash_id):
     """Delete a link"""
-    link = get_object_or_404(TelegramLink, pk=pk, user=request.user)
+    link = get_object_or_404(TelegramLink, hash_id=hash_id, user=request.user)
     
     if request.method == 'POST':
         link.is_active = False
@@ -164,7 +164,7 @@ def delete_link(request, pk):
 @login_required
 def my_links(request):
     """View user's own links"""
-    links = TelegramLink.objects.filter(user=request.user,is_active=True).order_by('-created_at')
+    links = TelegramLink.objects.filter(user=request.user, is_active=True).order_by('-created_at')
     
     paginator = Paginator(links, 10)
     page_number = request.GET.get('page')
@@ -173,10 +173,10 @@ def my_links(request):
     return render(request, 'links/my_links.html', {'page_obj': page_obj})
 
 @login_required
-def toggle_like(request, pk):
+def toggle_like(request, hash_id):
     """Toggle like on a link (AJAX)"""
     if request.method == 'POST':
-        link = get_object_or_404(TelegramLink, pk=pk)
+        link = get_object_or_404(TelegramLink, hash_id=hash_id)
         like, created = LinkLike.objects.get_or_create(user=request.user, link=link)
         
         if not created:
@@ -198,10 +198,10 @@ def toggle_like(request, pk):
     return JsonResponse({'success': False}, status=400)
 
 @login_required
-def add_comment(request, pk):
+def add_comment(request, hash_id):
     """Add a comment to a link"""
     if request.method == 'POST':
-        link = get_object_or_404(TelegramLink, pk=pk)
+        link = get_object_or_404(TelegramLink, hash_id=hash_id)
         form = CommentForm(request.POST)
         
         if form.is_valid():
@@ -213,16 +213,17 @@ def add_comment(request, pk):
         else:
             messages.error(request, 'Error adding comment.')
     
-    return redirect('link_detail', pk=pk)
+    return redirect('link_detail', hash_id=hash_id)
+
 
 @login_required
-def delete_comment(request, pk):
+def delete_comment(request, pk):  # Use pk for comments
     """Soft delete comment by setting is_active=False"""
     comment = get_object_or_404(Comment, pk=pk, user=request.user)
     comment.is_active = False
     comment.save()
     messages.success(request, 'Comment deleted successfully!')
-    return redirect('link_detail', pk=comment.link.pk)
+    return redirect('link_detail', hash_id=comment.link.hash_id)  # Use hash_id for the link
 
 def category_links(request, category_id):
     """View links by category"""

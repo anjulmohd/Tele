@@ -1,4 +1,4 @@
-eleLinks - Telegram Link Sharing Platform
+TeleLinks - Telegram Link Sharing Platform
 <div align="center">
 https://img.shields.io/badge/TeleLinks-Share%2520Telegram%2520Links-blue?style=for-the-badge&logo=telegram
 https://img.shields.io/badge/Django-5.2.7-green?style=for-the-badge&logo=django
